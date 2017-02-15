@@ -1,40 +1,43 @@
 <?php
 //This script uses MySQLi driver, so you need to install it, if it is apsent now
-echo 'Hello, listex. the php version is '.phpversion();
-$CSVfp = fopen("price.csv", "rt");
-fgetcsv($CSVfp, 1000, ",");
 
-if($CSVfp !== FALSE) {
-	$data = fgetcsv($CSVfp, 1000, ",");
-	$sql = "INSERT INTO `Lst_Goods` (`Name`)  VALUES ('".$data[1]."')" ;
+$conn = get_connection();
+migrate_table($conn);
 
- while(! feof($CSVfp)) {
-  $data = fgetcsv($CSVfp, 1000, ",");
-  $sql=$sql.",('".$data[1]."')" ;
-  //print_r($data);
- }
- $sql=$sql.";";
- echo $sql;
+$CSVfp = fopen("price.csv", "r");
+fgetcsv($CSVfp, 1000, ","); //skips first line with headers
+
+$id = 0;
+while (($data = fgetcsv($CSVfp, 1000, ",")) !== FALSE) {
+    $sql = "INSERT INTO `Lst_Goods` (`GoodId`,`Name`)  VALUES ($id, '$data[1]');";
+    $id++;
+    $conn->query($sql);
 }
 fclose($CSVfp);
+$conn->close();
 
-// $servername = "localhost";
-// $username = "root";
-// $password = "";
-// $dbname = "s2";
+function get_connection()
+{
+    $dbhost = 'localhost';
+    $dbuser = 'root';
+    $dbpass = '12345678';
+    $dbname = 'a0';
+    $conn = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+    if ($conn->connect_error) {
+        die('Connect Error (' . $conn->connect_errno . ') ' . $conn->connect_error);
+    }
+    return $conn;
+}
 
-// // Create connection
-// $conn = new mysqli($servername, $username, $password, $dbname);
-// // Check connection
-// if ($conn->connect_error) {
-//     die("Connection failed: " . $conn->connect_error);
-// } 
+function migrate_table($conn)
+{
+    $conn->query('DROP TABLE IF EXISTS Lst_Goods');
+    $sql = <<<SQL
+  CREATE TABLE `Lst_Goods` (
+  `GoodId` int(11) NOT NULL,
+  `Name` varchar(250) DEFAULT NULL
+  ) ENGINE=InnoDB AUTO_INCREMENT=492863 DEFAULT CHARSET=utf8;
+SQL;
+    $conn->query($sql);
 
-// if (mysqli_query($conn, $sql)) {
-//     echo "New record created successfully";
-// } else {
-//     echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-// }
-
-// mysqli_close($conn);
-?>
+}

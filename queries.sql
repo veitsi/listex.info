@@ -1,12 +1,8 @@
-SELECT DISTINCT GoodToCatId FROM Lst_GoodsToCat LIMIT 10;
-select * from goods left outer join gtc on goods.GoodId=gtc.GoodId  limit 30;
+SELECT count(*) from Lst_Goods
+LEFT JOIN Lst_GoodsToCat
+on Lst_Goods.GoodId=Lst_GoodsToCat.GoodId
+where Lst_GoodsToCat.GoodId is null;
 
-select count(*) from g
-left join t
-on g.GoodId=t.GoodId
-where t.GoodId is null
-
-select * from c
-left join t on c.CatId=t.CatId
-where t.GoodId is null
-limit 20
+SELECT Name FROM Lst_Cat
+LEFT JOIN Lst_GoodsToCat ON Lst_Cat.CatId=Lst_GoodsToCat.CatId
+WHERE Lst_GoodsToCat.GoodId is null;
